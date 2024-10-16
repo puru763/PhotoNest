@@ -5,6 +5,9 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/PhotoNest/discovery-service/pom.xml" />
+        <option value="$PROJECT_DIR$/PhotoNest/user-service/pom.xml" />
+        <option value="$PROJECT_DIR$/PhotoNest/account-service/pom.xml" />
+        <option value="$PROJECT_DIR$/PhotoNest/api-gateway/pom.xml" />
       </list>
     </option>
   </component>
