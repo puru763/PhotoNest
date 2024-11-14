@@ -1,18 +1,27 @@
-spring.application.name=api-gateway
-eureka.client.service-url.defaultZone=http://localhost:8010/eureka
-server.port=7777
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: user-status-check
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/user/**
+            - Method=GET,POST,PUT,DELETE
+
+        - id: account-status-check
+          uri: lb://account-service
+          predicates:
+            - Path=/api/v1/account/**
+            - Method=GET,POST,PUT,DELETE
 
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8010/eureka
 
-
-spring.cloud.gateway.routes[0].id=user-status-check
-spring.cloud.gateway.routes[0].uri=lb://user-service
-spring.cloud.gateway.routes[0].predicates[0]=Path=/api/v1/user/**
-spring.cloud.gateway.routes[0].predicates[1]=Method=GET
-spring.cloud.gateway.routes[0].predicates[2]=Method=POST
-spring.cloud.gateway.routes[0].predicates[3]=Method=PUT
-spring.cloud.gateway.routes[0].predicates[4]=Method=DELETE
-
-
-spring.cloud.gateway.discovery.locator.enabled=true
-spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+server:
+  port: 7777
