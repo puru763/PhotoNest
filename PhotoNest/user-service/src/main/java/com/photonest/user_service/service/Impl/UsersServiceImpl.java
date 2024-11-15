@@ -17,6 +17,7 @@ public class UsersServiceImpl  implements UsersService {
      @Autowired
      UserRepository userRepository;
 
+
     public UsersServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -27,7 +28,7 @@ public class UsersServiceImpl  implements UsersService {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         UserEntity userEntity = modelMapper.map(userDTO, UserEntity.class);
-        userEntity.setEncryptedPassword("working");
+        userEntity.setEncryptedPassword("pieooeiwiepowiuewpoe ");
         userRepository.save(userEntity);
         UserDTO user = modelMapper.map(userEntity, UserDTO.class);
         return user;

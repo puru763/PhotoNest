@@ -24,8 +24,8 @@ public class UserController {
         this.usersService = usersService;
     }
 
-//
-//    //  below  code   will  tell  you on  which  instace   ur  request  is   going   (with  the  nhelp  of  an  enviroment )
+
+//      below  code   will  tell  you on  which  instace   ur  request  is   going   (with  the  nhelp  of  an  enviroment )
 //    @Autowired
 //    private Environment env;
 //
@@ -34,17 +34,14 @@ public class UserController {
 //        return "working on  port  "+  env.getProperty("local.server.port");
 //    }
 
-    @PostMapping
-    ResponseEntity createUser( @Valid @RequestBody UserRequestModel userRequestModel){
 
-        //here  model mapper   si  ued  to  chek  that  while mapping   the   thing  shoudbe  same   i men  what  ever data  si  there    in reqest     it  and  repsone  it    shoud be  there
+    @PostMapping
+    public ResponseEntity<UserResponseModel> createUser(@Valid @RequestBody UserRequestModel userRequestModel) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
-        //  this     will  sued  to  tlee    to  conveert   to    what  to  what
         UserDTO userDto = modelMapper.map(userRequestModel, UserDTO.class);
         UserDTO createdUser = usersService.createUser(userDto);
-//        UserResponseModel returnValue = modelMapper.map(createdUser, UserResponseModel.class);
-        return (ResponseEntity) ResponseEntity.status(HttpStatus.CREATED);
+        UserResponseModel returnValue = modelMapper.map(createdUser, UserResponseModel.class);
+        return ResponseEntity.status(HttpStatus.CREATED).body(returnValue);
     }
 }
