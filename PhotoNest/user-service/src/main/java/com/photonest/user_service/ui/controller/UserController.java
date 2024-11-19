@@ -25,14 +25,15 @@ public class UserController {
     }
 
 
-//      below  code   will  tell  you on  which  instace   ur  request  is   going   (with  the  nhelp  of  an  enviroment )
-//    @Autowired
-//    private Environment env;
-//
-//    @GetMapping()
-//    public String name(){
-//        return "working on  port  "+  env.getProperty("local.server.port");
-//    }
+////      below  code   will  tell  you on  which  instace   ur  request  is   going   (with  the  nhelp  of  an  enviroment )
+
+
+    @Autowired
+   private Environment env;
+    @GetMapping()
+   public String name(){
+       return "working not  working    port  "+  env.getProperty("local.server.port");
+   }
 
 
     @PostMapping

@@ -10,10 +10,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableDiscoveryClient
 public class UserServiceApplication {
 
-
-
 	public static void main(String[] args) {
 		SpringApplication.run(UserServiceApplication.class, args);
+		System.out.print("working  brother ");
+
 	}
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
 }
