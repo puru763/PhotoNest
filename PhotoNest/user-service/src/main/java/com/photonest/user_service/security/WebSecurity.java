@@ -62,44 +62,68 @@
 
 package com.photonest.user_service.security;
 
+import com.photonest.user_service.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurity {
 
-    @Autowired
+
+
     private Environment environment;
+    private UsersService usersService;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public WebSecurity(Environment environment, UsersService usersService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.environment = environment;
+        this.usersService = usersService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        // Retrieve the gateway IP from environment properties
-        String gatewayIp = environment.getProperty("gateway.ip");
-        System.out.println("Configured Gateway IP: " + gatewayIp); // Debugging line
 
-        // Check if gatewayIp is null and throw an exception if it is
-        if (gatewayIp == null) {
-            throw new IllegalStateException("Gateway IP is not configured. Please check your configuration.");
-        }
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
 
-        http.csrf().disable()
-                .authorizeHttpRequests()
-                .requestMatchers(HttpMethod.GET, "/api/v1/user").permitAll() // Allow all GET requests
-                .requestMatchers(HttpMethod.POST, "/api/v1/user")
-                .access(new WebExpressionAuthorizationManager("hasIpAddress('" + gatewayIp + "')")) // Use the gateway IP for POST requests
-                .anyRequest().denyAll() // Deny all other requests for security
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        authenticationManagerBuilder.userDetailsService(usersService)
+                .passwordEncoder(bCryptPasswordEncoder);
 
+        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
+
+        AuthenticationFilter authenticationFilter =
+                new AuthenticationFilter(usersService, environment, authenticationManager);
+        authenticationFilter.setFilterProcessesUrl(environment.getProperty("login.url.path"));
+
+        http.csrf((csrf) -> csrf.disable());
+
+        http.authorizeHttpRequests((authz) -> authz
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/user", "POST")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll())
+                .addFilter(authenticationFilter)
+                .authenticationManager(authenticationManager)
+
+
+                .sessionManagement((session) -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        http.headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.sameOrigin()));
         return http.build();
+
     }
+
 }
